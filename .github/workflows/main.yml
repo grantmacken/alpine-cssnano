@@ -1,0 +1,27 @@
+name: alpine-cssnano
+
+on:
+  push:
+    branches: master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: make image and try out
+        run: |
+          make bld 
+          make run
+      - name: Push proxy image to Github Packages
+        run: |
+          source .env
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${REPO_OWNER} --password-stdin
+          docker push docker.pkg.github.com/${REPO_OWNER}/${REPO_NAME}/${CONTAINER_NAME}:${VERSION}
